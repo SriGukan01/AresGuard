@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Navigation, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { MapPin, Navigation, ArrowLeft, Loader2, AlertCircle, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useEmergency } from '@/context/EmergencyContext';
@@ -31,7 +31,7 @@ const LocationPermission: React.FC = () => {
     setError(null);
 
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+      setError('Geolocation is not supported by your browser. Please enter address manually.');
       setShowManualInput(true);
       setIsLoading(false);
       return;
@@ -40,7 +40,7 @@ const LocationPermission: React.FC = () => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
-        let address = `${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E (Live Location)`;
+        let address = `${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E (Live Satellite Coordinates)`;
         
         try {
           const res = await fetch(
@@ -61,7 +61,7 @@ const LocationPermission: React.FC = () => {
         setLocation({
           latitude,
           longitude,
-          accuracy,
+          accuracy: Math.round(accuracy),
           address,
         });
         setLocationPermissionGranted(true);
@@ -71,8 +71,8 @@ const LocationPermission: React.FC = () => {
         console.error('Geolocation error:', err);
         setError(
           err.code === 1
-            ? 'Location permission denied. Please enter your address manually.'
-            : 'Unable to get your location. Please try again or enter manually.'
+            ? 'Location access was declined. Please enter your incident address manually below.'
+            : 'Unable to acquire satellite fix. Please retry or enter landmark manually.'
         );
         setShowManualInput(true);
         setIsLoading(false);
@@ -127,114 +127,155 @@ const LocationPermission: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex flex-col">
-      {/* Header */}
-      <header className="p-4 flex items-center gap-4 border-b border-border/50">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div className="flex-1">
-          <ProgressIndicator steps={steps} currentStep={1} />
+    <div className="min-h-screen bg-[#F4F6F8] text-[#243447] flex flex-col font-sans">
+      {/* Top Institutional Header */}
+      <header className="bg-white border-b border-[#DCE3EA] px-4 py-3 sticky top-0 z-40 shadow-2xs">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/')}
+            className="text-[#64748B] hover:text-[#243447] gap-1 px-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline font-semibold">Portal Home</span>
+          </Button>
+
+          <div className="flex-1 max-w-md">
+            <ProgressIndicator steps={steps} currentStep={1} />
+          </div>
+
+          <div className="w-16 text-right text-[11px] font-mono text-[#64748B] hidden sm:block">
+            Step 1 of 4
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="max-w-md w-full space-y-8 animate-fade-in">
-          {/* Icon */}
-          <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center">
-              <MapPin className="w-10 h-10 text-primary" />
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
+        <div className="max-w-lg w-full bg-white rounded-lg border border-[#DCE3EA] p-6 sm:p-8 shadow-xs space-y-6">
+          {/* Header & Icon */}
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 rounded-lg bg-[#173B5E]/10 border border-[#173B5E]/20 text-[#173B5E] flex items-center justify-center mx-auto">
+              <MapPin className="w-6 h-6 text-[#173B5E]" />
+            </div>
+
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-[#173B5E] tracking-tight">
+                Verify Incident Location
+              </h1>
+              <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 leading-relaxed">
+                Accurate coordinate lock allows emergency CAD systems to dispatch the nearest active field unit with minimal transit time.
+              </p>
             </div>
           </div>
 
-          {/* Text */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold">Share Your Location</h1>
-            <p className="text-muted-foreground">
-              We need your location to send help to the right place quickly.
-            </p>
-          </div>
-
-          {/* Location Display or Request */}
+          {/* Location Card or Acquire Section */}
           {location ? (
-            <div className="space-y-4">
+            <div className="space-y-4 pt-2">
               <LocationDisplay
                 location={location}
                 onRefresh={requestLocation}
               />
               <Button
+                variant="default"
                 size="lg"
-                className="w-full"
+                className="w-full bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-12 rounded-md shadow-xs"
                 onClick={handleContinue}
               >
-                Continue
+                <span>Confirm Location & Continue</span>
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 pt-2">
               {error && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm">
-                  <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                  <p className="text-destructive">{error}</p>
+                <div className="flex items-start gap-2.5 p-3.5 rounded-md bg-red-50 border border-red-200 text-xs text-[#243447]">
+                  <AlertCircle className="w-4 h-4 text-[#C62832] shrink-0 mt-0.5" />
+                  <p className="text-[#C62832] font-medium leading-relaxed">{error}</p>
                 </div>
               )}
 
               {!showManualInput ? (
-                <Button
-                  variant="emergency"
-                  size="xl"
-                  className="w-full"
-                  onClick={requestLocation}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Detecting Location...
-                    </>
-                  ) : (
-                    <>
-                      <Navigation className="w-5 h-5" />
-                      Enable Location
-                    </>
-                  )}
-                </Button>
-              ) : (
                 <div className="space-y-3">
-                  <Input
-                    placeholder="Enter your address or landmark..."
-                    value={manualAddress}
-                    onChange={(e) => setManualAddress(e.target.value)}
-                    className="h-12"
-                  />
                   <Button
+                    variant="default"
                     size="lg"
-                    className="w-full"
-                    onClick={handleManualSubmit}
-                    disabled={!manualAddress.trim()}
+                    className="w-full bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-12 rounded-md shadow-xs gap-2"
+                    onClick={requestLocation}
+                    disabled={isLoading}
                   >
-                    Confirm Location
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Acquiring Satellite GPS Fix...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-4 h-4" />
+                        <span>Acquire GPS Location Automatically</span>
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full text-xs font-semibold h-10 border-[#DCE3EA] text-[#64748B] hover:text-[#243447]"
+                    onClick={() => setShowManualInput(true)}
+                  >
+                    Enter landmark or street address manually
                   </Button>
                 </div>
-              )}
+              ) : (
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#243447]">
+                      Incident Landmark / Street Address:
+                    </label>
+                    <Input
+                      placeholder="e.g. Near Central Station, Poonamallee High Rd, Chennai"
+                      value={manualAddress}
+                      onChange={(e) => setManualAddress(e.target.value)}
+                      className="h-11 border-[#DCE3EA] bg-white text-sm"
+                    />
+                  </div>
 
-              {!showManualInput && (
-                <Button
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setShowManualInput(true)}
-                >
-                  Enter address manually
-                </Button>
+                  <Button
+                    variant="default"
+                    size="lg"
+                    className="w-full bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-11 rounded-md"
+                    onClick={handleManualSubmit}
+                    disabled={!manualAddress.trim() || isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Resolving Address...</span>
+                      </>
+                    ) : (
+                      <span>Verify & Set Location</span>
+                    )}
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowManualInput(false);
+                      setError(null);
+                    }}
+                    className="text-xs text-[#285F86] hover:underline font-semibold block mx-auto pt-1 cursor-pointer"
+                  >
+                    Use device GPS instead
+                  </button>
+                </div>
               )}
             </div>
           )}
 
-          {/* Privacy Note */}
-          <p className="text-center text-xs text-muted-foreground">
-            🔒 Your location is only shared with emergency responders and is never stored.
-          </p>
+          {/* Institutional Compliance Notice */}
+          <div className="border-t border-[#DCE3EA] pt-4 text-[11px] text-[#64748B] flex items-center gap-2 justify-center">
+            <Shield className="w-3.5 h-3.5 text-[#285F86] shrink-0" />
+            <span>Incident coordinates are encrypted and transmitted solely to authorized dispatch personnel.</span>
+          </div>
         </div>
       </main>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { AlertTriangle } from 'lucide-react';
 
 interface SOSButtonProps {
   onActivate: () => void;
@@ -60,16 +61,11 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
     return () => clearTimers();
   }, []);
 
-  return (
-    <div className={cn('relative', className)}>
-      {/* Outer pulse rings */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="absolute w-48 h-48 rounded-full bg-primary/20 animate-pulse-ring" />
-        <div className="absolute w-48 h-48 rounded-full bg-primary/20 animate-pulse-ring" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute w-48 h-48 rounded-full bg-primary/20 animate-pulse-ring" style={{ animationDelay: '1s' }} />
-      </div>
+  const circumference = 2 * Math.PI * 46;
+  const strokeDashoffset = circumference - (holdProgress / 100) * circumference;
 
-      {/* Main button */}
+  return (
+    <div className={cn('relative flex flex-col items-center', className)}>
       <button
         onMouseDown={handleStart}
         onMouseUp={handleEnd}
@@ -77,49 +73,54 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
         onTouchStart={handleStart}
         onTouchEnd={handleEnd}
         disabled={disabled}
+        type="button"
         className={cn(
-          'relative w-40 h-40 rounded-full gradient-emergency shadow-button',
-          'flex flex-col items-center justify-center gap-1',
-          'transition-transform duration-200',
-          'focus:outline-none focus:ring-4 focus:ring-primary/50',
+          'relative w-40 h-40 rounded-full bg-[#C62832] text-white',
+          'flex flex-col items-center justify-center gap-1.5 shadow-md',
+          'transition-all duration-150 border-4 border-white select-none',
+          'focus:outline-none focus:ring-4 focus:ring-[#C62832]/30',
           'disabled:opacity-50 disabled:cursor-not-allowed',
-          isPressed && 'scale-95',
-          !disabled && 'hover:scale-105 cursor-pointer'
+          isPressed ? 'scale-95 bg-[#a8222a]' : 'hover:bg-[#b5242d] cursor-pointer'
         )}
+        aria-label="Hold to confirm emergency dispatch"
       >
-        {/* Progress ring */}
+        {/* Progress SVG Ring */}
         <svg
-          className="absolute inset-0 w-full h-full -rotate-90"
+          className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none"
           viewBox="0 0 100 100"
         >
           <circle
             cx="50"
             cy="50"
-            r="48"
+            r="46"
             fill="none"
-            stroke="rgba(255,255,255,0.3)"
+            stroke="rgba(255,255,255,0.25)"
             strokeWidth="4"
           />
           <circle
             cx="50"
             cy="50"
-            r="48"
+            r="46"
             fill="none"
-            stroke="white"
+            stroke="#FFFFFF"
             strokeWidth="4"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
-            strokeDasharray={`${holdProgress * 3.02} 302`}
-            className="transition-all duration-100"
+            className="transition-all duration-75"
           />
         </svg>
 
-        <span className="text-4xl font-black text-primary-foreground tracking-wider z-10">
-          SOS
-        </span>
-        <span className="text-xs text-primary-foreground/80 font-medium z-10">
-          HOLD TO ACTIVATE
+        <AlertTriangle className="w-8 h-8 text-white stroke-[2.5]" />
+        <span className="text-xl font-black tracking-wider uppercase">SOS</span>
+        <span className="text-[10px] font-bold tracking-normal opacity-90 uppercase">
+          {isPressed ? 'HOLDING...' : 'HOLD TO CONFIRM'}
         </span>
       </button>
+
+      <p className="text-xs font-semibold text-[#64748B] mt-3">
+        Hold for 1.2 seconds to authorize dispatch
+      </p>
     </div>
   );
 };

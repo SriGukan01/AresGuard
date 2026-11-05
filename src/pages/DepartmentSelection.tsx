@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEmergency } from '@/context/EmergencyContext';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
@@ -35,12 +35,12 @@ const DepartmentSelection: React.FC = () => {
     }
   }, [setCurrentStep, location, selectedEmergencyTypes, navigate]);
 
-  // Get AI recommendations based on selected emergency types
+  // Automated recommendations based on selected emergency types
   const recommendations = useMemo(() => {
     return getAIRecommendation(selectedEmergencyTypes, departments);
   }, [selectedEmergencyTypes]);
 
-  // Get suggested departments based on emergency types
+  // Suggested departments based on emergency types
   const suggestedDepartmentIds = useMemo(() => {
     const ids = new Set<DepartmentId>();
     selectedEmergencyTypes.forEach(typeId => {
@@ -49,6 +49,13 @@ const DepartmentSelection: React.FC = () => {
     });
     return Array.from(ids);
   }, [selectedEmergencyTypes]);
+
+  // Auto-select suggested departments if none selected yet
+  useEffect(() => {
+    if (selectedDepartments.length === 0 && suggestedDepartmentIds.length > 0) {
+      setSelectedDepartments(suggestedDepartmentIds);
+    }
+  }, [suggestedDepartmentIds, selectedDepartments.length, setSelectedDepartments]);
 
   // Sort departments: suggested first, then by availability
   const sortedDepartments = useMemo(() => {
@@ -59,7 +66,6 @@ const DepartmentSelection: React.FC = () => {
       if (aIsSuggested && !bIsSuggested) return -1;
       if (!aIsSuggested && bIsSuggested) return 1;
       
-      // Then by availability
       const statusOrder = { available: 0, busy: 1, occupied: 2 };
       return statusOrder[a.status] - statusOrder[b.status];
     });
@@ -84,46 +90,63 @@ const DepartmentSelection: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex flex-col">
-      {/* Header */}
-      <header className="p-4 flex items-center gap-4 border-b border-border/50">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/emergency-type')}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div className="flex-1">
-          <ProgressIndicator steps={steps} currentStep={3} />
+    <div className="min-h-screen bg-[#F4F6F8] text-[#243447] flex flex-col font-sans">
+      {/* Top Institutional Header */}
+      <header className="bg-white border-b border-[#DCE3EA] px-4 py-3 sticky top-0 z-40 shadow-2xs">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/emergency-type')}
+            className="text-[#64748B] hover:text-[#243447] gap-1 px-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline font-semibold">Incident Type</span>
+          </Button>
+
+          <div className="flex-1 max-w-md">
+            <ProgressIndicator steps={steps} currentStep={3} />
+          </div>
+
+          <div className="w-16 text-right text-[11px] font-mono text-[#64748B] hidden sm:block">
+            Step 3 of 4
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col p-6 overflow-y-auto">
-        <div className="max-w-2xl w-full mx-auto space-y-6 animate-fade-in">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold">Select Department</h1>
-            <p className="text-muted-foreground">
-              Choose who should respond to your emergency
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        <div className="bg-white rounded-lg border border-[#DCE3EA] p-6 sm:p-8 shadow-xs space-y-6">
+          {/* Header Title */}
+          <div className="border-b border-[#DCE3EA] pb-4">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#285F86] uppercase tracking-wider mb-1">
+              <ShieldCheck className="w-4 h-4 text-[#16845B]" />
+              <span>Agency Allocation Protocol</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-[#173B5E] tracking-tight">
+              Select Responding Departments
+            </h1>
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1">
+              Confirm which emergency services should be dispatched. Pre-selected units are based on your reported incident classification.
             </p>
           </div>
 
-          {/* AI Recommendation Banner */}
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/30">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">AI-Optimized Selection</p>
-              <p className="text-xs text-muted-foreground">
-                Departments are sorted by availability, distance, and response time for your emergency type.
-              </p>
+          {/* Allocation Guideline Banner */}
+          <div className="flex items-start gap-3 p-3.5 rounded-lg bg-blue-50/70 border border-blue-200">
+            <Activity className="w-4 h-4 text-[#285F86] shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <span className="font-bold text-[#173B5E]">CAD Dispatch Optimization Active: </span>
+              <span className="text-[#64748B]">
+                Units are sorted by real-time station proximity, operational readiness, and estimated street response time.
+              </span>
             </div>
           </div>
 
           {/* Suggested Departments */}
           {suggestedDepartmentIds.length > 0 && (
             <div className="space-y-3">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Recommended for you
+              <h2 className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
+                Priority Responding Agencies
               </h2>
               <div className="space-y-3">
                 {sortedDepartments
@@ -145,52 +168,54 @@ const DepartmentSelection: React.FC = () => {
             </div>
           )}
 
-          {/* Other Departments */}
+          {/* Other Available Departments */}
           {sortedDepartments.filter(dept => !suggestedDepartmentIds.includes(dept.id)).length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Other Departments
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
+                Additional Support Agencies
               </h2>
               <div className="space-y-3">
                 {sortedDepartments
                   .filter(dept => !suggestedDepartmentIds.includes(dept.id))
-                  .map(dept => {
-                    const rec = getRecommendationForDept(dept.id);
-                    return (
-                      <DepartmentCard
-                        key={dept.id}
-                        department={dept}
-                        isSelected={selectedDepartments.includes(dept.id)}
-                        onSelect={() => toggleDepartment(dept.id)}
-                        recommendationReason={rec?.reason}
-                      />
-                    );
-                  })}
+                  .map(dept => (
+                    <DepartmentCard
+                      key={dept.id}
+                      department={dept}
+                      isSelected={selectedDepartments.includes(dept.id)}
+                      onSelect={() => toggleDepartment(dept.id)}
+                    />
+                  ))}
               </div>
             </div>
           )}
+
+          {/* Selection Status & Action */}
+          <div className="pt-4 border-t border-[#DCE3EA] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-xs font-medium text-[#64748B]">
+              {selectedDepartments.length === 0 ? (
+                <span className="text-[#C62832] font-semibold">
+                  • Please select at least one responding agency.
+                </span>
+              ) : (
+                <span className="text-[#173B5E] font-semibold">
+                  ✓ {selectedDepartments.length} agenc{selectedDepartments.length !== 1 ? 'ies' : 'y'} selected for dispatch.
+                </span>
+              )}
+            </div>
+
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full sm:w-auto bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-11 px-8 rounded-md shadow-xs gap-2"
+              onClick={handleContinue}
+              disabled={selectedDepartments.length === 0}
+            >
+              <span>Review & Authorize Dispatch</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="p-4 border-t border-border/50 bg-background/80 backdrop-blur-sm">
-        <div className="max-w-2xl mx-auto">
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={handleContinue}
-            disabled={selectedDepartments.length === 0}
-          >
-            Continue to Confirm
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-          {selectedDepartments.length > 0 && (
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              {selectedDepartments.length} department{selectedDepartments.length !== 1 ? 's' : ''} selected
-            </p>
-          )}
-        </div>
-      </footer>
     </div>
   );
 };

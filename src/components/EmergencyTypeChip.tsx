@@ -1,7 +1,19 @@
 import React from 'react';
 import { EmergencyTypeOption } from '@/types/emergency';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { 
+  Check, 
+  Car, 
+  Flame, 
+  Waves, 
+  ShieldAlert, 
+  HeartPulse, 
+  Shield, 
+  Wind, 
+  Users, 
+  TrafficCone, 
+  AlertCircle 
+} from 'lucide-react';
 
 interface EmergencyTypeChipProps {
   type: EmergencyTypeOption;
@@ -9,17 +21,17 @@ interface EmergencyTypeChipProps {
   onToggle: () => void;
 }
 
-const typeIcons: Record<string, string> = {
-  accident: '🚗',
-  fire: '🔥',
-  flood: '🌊',
-  assault: '⚠️',
-  medical: '🏥',
-  robbery: '🚨',
-  'natural-disaster': '🌪️',
-  'domestic-violence': '🏠',
-  'traffic-jam': '🚦',
-  other: '❓',
+const typeIconMap: Record<string, React.ElementType> = {
+  accident: Car,
+  fire: Flame,
+  flood: Waves,
+  assault: ShieldAlert,
+  medical: HeartPulse,
+  robbery: Shield,
+  'natural-disaster': Wind,
+  'domestic-violence': Users,
+  'traffic-jam': TrafficCone,
+  other: AlertCircle,
 };
 
 export const EmergencyTypeChip: React.FC<EmergencyTypeChipProps> = ({
@@ -27,22 +39,31 @@ export const EmergencyTypeChip: React.FC<EmergencyTypeChipProps> = ({
   isSelected,
   onToggle,
 }) => {
+  const Icon = typeIconMap[type.id] || AlertCircle;
+
   return (
     <button
       onClick={onToggle}
+      type="button"
       className={cn(
-        'flex items-center gap-2 px-4 py-3 rounded-xl border-2 transition-all duration-200',
-        'hover:border-primary/50 active:scale-[0.98]',
+        'flex items-center gap-3 px-4 py-3.5 rounded-lg border text-left transition-all duration-150 cursor-pointer shadow-2xs',
         isSelected
-          ? 'border-primary bg-primary/10 shadow-glow'
-          : 'border-border bg-card hover:bg-secondary/50'
+          ? 'border-[#173B5E] bg-[#173B5E]/5 text-[#173B5E] ring-1 ring-[#173B5E]'
+          : 'border-[#DCE3EA] bg-white text-[#243447] hover:border-[#285F86]/40 hover:bg-[#F4F6F8]'
       )}
     >
-      <span className="text-xl">{typeIcons[type.id]}</span>
-      <span className="font-medium text-sm">{type.label}</span>
+      <div className={cn(
+        'w-8 h-8 rounded-md flex items-center justify-center shrink-0 transition-colors',
+        isSelected ? 'bg-[#173B5E] text-white' : 'bg-[#F4F6F8] text-[#285F86]'
+      )}>
+        <Icon className="w-4 h-4" />
+      </div>
+
+      <span className="font-semibold text-sm flex-1">{type.label}</span>
+
       {isSelected && (
-        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center ml-auto">
-          <Check className="w-2.5 h-2.5 text-primary-foreground" />
+        <div className="w-5 h-5 rounded-full bg-[#173B5E] flex items-center justify-center ml-auto shrink-0">
+          <Check className="w-3 h-3 text-white" />
         </div>
       )}
     </button>

@@ -19,7 +19,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('flex items-center justify-center gap-2', className)}>
+    <div className={cn('flex items-center justify-center gap-1 sm:gap-3', className)}>
       {steps.map((step, index) => {
         const isCompleted = step.number < currentStep;
         const isCurrent = step.number === currentStep;
@@ -27,21 +27,21 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 
         return (
           <React.Fragment key={step.number}>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-2">
               <div
                 className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
-                  isCompleted && 'bg-success text-success-foreground',
-                  isCurrent && 'bg-primary text-primary-foreground shadow-glow',
-                  !isCompleted && !isCurrent && 'bg-muted text-muted-foreground'
+                  'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
+                  isCompleted && 'bg-[#16845B] text-white',
+                  isCurrent && 'bg-[#173B5E] text-white ring-2 ring-[#173B5E]/30',
+                  !isCompleted && !isCurrent && 'bg-white border border-[#DCE3EA] text-[#64748B]'
                 )}
               >
-                {isCompleted ? <Check className="w-4 h-4" /> : step.number}
+                {isCompleted ? <Check className="w-3.5 h-3.5 text-white stroke-[3]" /> : step.number}
               </div>
               <span
                 className={cn(
-                  'text-xs font-medium hidden sm:block',
-                  isCurrent ? 'text-foreground' : 'text-muted-foreground'
+                  'text-xs font-semibold hidden md:inline',
+                  isCurrent ? 'text-[#173B5E]' : isCompleted ? 'text-[#243447]' : 'text-[#64748B]'
                 )}
               >
                 {step.label}
@@ -51,8 +51,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             {!isLast && (
               <div
                 className={cn(
-                  'w-8 sm:w-12 h-0.5 transition-all duration-300',
-                  isCompleted ? 'bg-success' : 'bg-border'
+                  'w-4 sm:w-8 md:w-12 h-0.5 transition-colors',
+                  isCompleted ? 'bg-[#16845B]' : 'bg-[#DCE3EA]'
                 )}
               />
             )}
