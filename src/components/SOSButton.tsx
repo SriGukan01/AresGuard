@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SOSButtonProps {
@@ -14,38 +14,51 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
 }) => {
   const [isPressed, setIsPressed] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
-  const holdDuration = 1500; // 1.5 seconds to activate
-  let holdTimer: NodeJS.Timeout;
-  let progressInterval: NodeJS.Timeout;
+  const holdDuration = 1200; // 1.2 seconds to activate
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMouseDown = () => {
+  const clearTimers = () => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
+
+  const handleStart = () => {
     if (disabled) return;
-    
+    clearTimers();
     setIsPressed(true);
     setHoldProgress(0);
-    
+
     const startTime = Date.now();
-    progressInterval = setInterval(() => {
+    progressIntervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min((elapsed / holdDuration) * 100, 100);
       setHoldProgress(progress);
-    }, 16);
+    }, 20);
 
-    holdTimer = setTimeout(() => {
-      clearInterval(progressInterval);
+    holdTimerRef.current = setTimeout(() => {
+      clearTimers();
       setHoldProgress(100);
-      onActivate();
       setIsPressed(false);
-      setHoldProgress(0);
+      onActivate();
     }, holdDuration);
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     setIsPressed(false);
     setHoldProgress(0);
-    clearTimeout(holdTimer);
-    clearInterval(progressInterval);
+    clearTimers();
   };
+
+  useEffect(() => {
+    return () => clearTimers();
+  }, []);
 
   return (
     <div className={cn('relative', className)}>
@@ -58,11 +71,11 @@ export const SOSButton: React.FC<SOSButtonProps> = ({
 
       {/* Main button */}
       <button
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleMouseDown}
-        onTouchEnd={handleMouseUp}
+        onMouseDown={handleStart}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={handleStart}
+        onTouchEnd={handleEnd}
         disabled={disabled}
         className={cn(
           'relative w-40 h-40 rounded-full gradient-emergency shadow-button',

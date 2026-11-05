@@ -32,11 +32,50 @@ interface EmergencyContextType {
 const EmergencyContext = createContext<EmergencyContextType | undefined>(undefined);
 
 export const EmergencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocationState] = useState<Location | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('ares_location');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
   const [selectedEmergencyTypes, setSelectedEmergencyTypes] = useState<EmergencyType[]>([]);
   const [selectedDepartments, setSelectedDepartments] = useState<DepartmentId[]>([]);
-  const [currentReport, setCurrentReport] = useState<EmergencyReport | null>(null);
+  
+  const [currentReport, setCurrentReportState] = useState<EmergencyReport | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('ares_report');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const setLocation = (loc: Location | null) => {
+    setLocationState(loc);
+    try {
+      if (loc) {
+        sessionStorage.setItem('ares_location', JSON.stringify(loc));
+      } else {
+        sessionStorage.removeItem('ares_location');
+      }
+    } catch {}
+  };
+
+  const setCurrentReport = (report: EmergencyReport | null) => {
+    setCurrentReportState(report);
+    try {
+      if (report) {
+        sessionStorage.setItem('ares_report', JSON.stringify(report));
+      } else {
+        sessionStorage.removeItem('ares_report');
+      }
+    } catch {}
+  };
+
   const [alerts, setAlerts] = useState<Alert[]>(sampleAlerts);
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -45,9 +84,13 @@ export const EmergencyProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const resetFlow = () => {
+    try {
+      sessionStorage.removeItem('ares_location');
+      sessionStorage.removeItem('ares_report');
+    } catch {}
     setSelectedEmergencyTypes([]);
     setSelectedDepartments([]);
-    setCurrentReport(null);
+    setCurrentReportState(null);
     setCurrentStep(1);
   };
 

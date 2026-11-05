@@ -9,12 +9,70 @@ import { cn } from '@/lib/utils';
 
 const Tracking: React.FC = () => {
   const navigate = useNavigate();
-  const { currentReport, location, resetFlow } = useEmergency();
+  const { currentReport, location, setLocation, setCurrentReport, resetFlow } = useEmergency();
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
+    // If no report or location, initialize a live tracking session at current GPS location
     if (!currentReport || !location) {
-      navigate('/');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const liveLoc = {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              accuracy: pos.coords.accuracy,
+              address: 'Live GPS Location',
+            };
+            setLocation(liveLoc);
+            setCurrentReport({
+              id: `ER-${Date.now().toString().slice(-6)}`,
+              location: liveLoc,
+              emergencyTypes: ['medical'],
+              selectedDepartments: ['ambulance'],
+              timestamp: new Date(),
+              status: 'dispatched',
+              assignedUnits: [
+                {
+                  id: 'unit-ambulance-1',
+                  departmentId: 'ambulance',
+                  unitName: 'Emergency Medical Service 1',
+                  eta: 6,
+                  distance: 2.4,
+                  status: 'en-route',
+                },
+              ],
+            });
+          },
+          () => {
+            const defaultLoc = {
+              latitude: 13.0827,
+              longitude: 80.2707,
+              address: 'Chennai Central (Demo Location)',
+            };
+            setLocation(defaultLoc);
+            setCurrentReport({
+              id: `ER-${Date.now().toString().slice(-6)}`,
+              location: defaultLoc,
+              emergencyTypes: ['medical'],
+              selectedDepartments: ['ambulance'],
+              timestamp: new Date(),
+              status: 'dispatched',
+              assignedUnits: [
+                {
+                  id: 'unit-ambulance-1',
+                  departmentId: 'ambulance',
+                  unitName: 'Emergency Medical Service 1',
+                  eta: 6,
+                  distance: 2.4,
+                  status: 'en-route',
+                },
+              ],
+            });
+          },
+          { timeout: 5000 }
+        );
+      }
       return;
     }
 
@@ -23,7 +81,7 @@ const Tracking: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentReport, location, navigate]);
+  }, [currentReport, location, setLocation, setCurrentReport]);
 
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to cancel the emergency request?')) {
@@ -38,7 +96,17 @@ const Tracking: React.FC = () => {
   };
 
   if (!currentReport || !location) {
-    return null;
+    return (
+      <div className="min-h-screen gradient-hero flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl animate-bounce mb-4">
+          🚑
+        </div>
+        <h2 className="text-xl font-bold">Connecting to Live Ambulance GPS...</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+          Fetching live coordinates and dispatching nearest emergency response vehicle.
+        </p>
+      </div>
+    );
   }
 
   const formatTime = (seconds: number) => {

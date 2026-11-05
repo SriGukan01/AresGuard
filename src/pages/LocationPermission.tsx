@@ -40,10 +40,24 @@ const LocationPermission: React.FC = () => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
+        let address = `${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E (Live Location)`;
         
-        // Simulate reverse geocoding
-        const address = `${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E (Downtown Area)`;
-        
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            { headers: { 'User-Agent': 'ARES-Emergency-App' } }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.display_name) {
+              const parts = data.display_name.split(', ');
+              address = parts.slice(0, 3).join(', ');
+            }
+          }
+        } catch (e) {
+          console.warn('Reverse geocoding error:', e);
+        }
+
         setLocation({
           latitude,
           longitude,
@@ -66,21 +80,44 @@ const LocationPermission: React.FC = () => {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0,
+        maximumAge: 5000,
       }
     );
   };
 
-  const handleManualSubmit = () => {
-    if (manualAddress.trim()) {
-      // Simulate geocoding with dummy coordinates
-      setLocation({
-        latitude: 40.7128 + Math.random() * 0.01,
-        longitude: -74.006 + Math.random() * 0.01,
-        address: manualAddress,
-      });
-      setLocationPermissionGranted(true);
+  const handleManualSubmit = async () => {
+    if (!manualAddress.trim()) return;
+    setIsLoading(true);
+
+    let lat = 13.0827;
+    let lng = 80.2707;
+    let resolvedAddress = manualAddress.trim();
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(manualAddress)}&format=json&limit=1`,
+        { headers: { 'User-Agent': 'ARES-Emergency-App' } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          lat = parseFloat(data[0].lat);
+          lng = parseFloat(data[0].lon);
+          resolvedAddress = data[0].display_name.split(', ').slice(0, 3).join(', ');
+        }
+      }
+    } catch (e) {
+      console.warn('Geocoding error:', e);
     }
+
+    setLocation({
+      latitude: lat,
+      longitude: lng,
+      accuracy: 20,
+      address: resolvedAddress,
+    });
+    setLocationPermissionGranted(true);
+    setIsLoading(false);
   };
 
   const handleContinue = () => {
