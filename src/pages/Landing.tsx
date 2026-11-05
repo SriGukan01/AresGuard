@@ -4,19 +4,14 @@ import {
   AlertTriangle, 
   Shield, 
   Phone, 
-  MapPin, 
-  Clock, 
-  HeartPulse, 
-  Flame, 
-  LifeBuoy, 
-  ChevronRight, 
   Lock,
-  Activity,
-  CheckCircle2,
-  Navigation
+  ChevronRight,
+  X,
+  MapPin,
+  Clock,
+  Radio
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AlertBanner } from '@/components/AlertBanner';
 import { useEmergency } from '@/context/EmergencyContext';
 
 const Landing: React.FC = () => {
@@ -37,36 +32,56 @@ const Landing: React.FC = () => {
   };
 
   const emergencyHelplines = [
-    { number: '112', title: 'National Emergency Helpline', desc: 'Police, Fire, Medical & Disaster Response', highlight: 'border-red-300 bg-red-50/40 text-[#C62832]' },
-    { number: '108', title: 'Emergency Medical / Ambulance', desc: 'Toll-free 24/7 ALS/BLS Trauma Ambulance', highlight: 'border-emerald-300 bg-emerald-50/40 text-[#16845B]' },
-    { number: '101', title: 'Fire & Rescue Services', desc: 'Fire incidents, industrial & hazmat rescue', highlight: 'border-amber-300 bg-amber-50/40 text-[#D97706]' },
-    { number: '100', title: 'Police Control Room', desc: 'Crime reporting, law enforcement & security', highlight: 'border-blue-300 bg-blue-50/40 text-[#285F86]' },
+    { 
+      number: '112', 
+      title: 'National Emergency', 
+      desc: 'All-in-One Helpline', 
+      color: 'border-red-300 bg-red-50/70 text-[#C62832]' 
+    },
+    { 
+      number: '108', 
+      title: 'Medical / Ambulance', 
+      desc: '24/7 Trauma Ambulance', 
+      color: 'border-emerald-300 bg-emerald-50/70 text-[#16845B]' 
+    },
+    { 
+      number: '101', 
+      title: 'Fire & Rescue', 
+      desc: 'Fire & Hazmat Emergencies', 
+      color: 'border-amber-300 bg-amber-50/70 text-[#D97706]' 
+    },
+    { 
+      number: '100', 
+      title: 'Police Control Room', 
+      desc: 'Crime & Security Dispatch', 
+      color: 'border-blue-300 bg-blue-50/70 text-[#285F86]' 
+    },
   ];
 
   return (
     <div className="min-h-screen bg-[#F4F6F8] text-[#243447] flex flex-col font-sans selection:bg-[#173B5E]/10">
       {/* Top Institutional Bar */}
-      <div className="bg-[#173B5E] text-white px-4 py-1.5 text-xs border-b border-[#285F86]">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-[#173B5E] text-white px-3 sm:px-4 py-1.5 text-xs border-b border-[#285F86]">
+        <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold tracking-wider uppercase text-[11px]">
+            <span className="font-bold tracking-wider uppercase text-[10px] sm:text-[11px]">
               Emergency Response Support System (ERSS)
             </span>
-            <span className="text-white/40">|</span>
+            <span className="text-white/40 hidden sm:inline">|</span>
             <span className="hidden sm:inline text-white/80 text-[11px]">
-              Public Safety & Computer-Aided Dispatch Directorate
+              Public Safety Directorate
             </span>
           </div>
 
-          <div className="flex items-center gap-3 font-mono text-[11px] text-white/80">
+          <div className="flex items-center gap-2 sm:gap-3 font-mono text-[10px] sm:text-[11px] text-white/80">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#16845B] animate-pulse"></span>
-              <span>CAD Nodes Online</span>
+              <span>CAD Active</span>
             </span>
             <span className="text-white/40">|</span>
             <span>{currentTime || 'IST'}</span>
-            <span className="text-white/40">|</span>
-            <span className="flex items-center gap-1 text-white">
+            <span className="text-white/40 hidden sm:inline">|</span>
+            <span className="hidden sm:flex items-center gap-1 text-white">
               <Lock className="w-3 h-3 text-emerald-400" />
               <span>TLS 256-Bit</span>
             </span>
@@ -75,8 +90,8 @@ const Landing: React.FC = () => {
       </div>
 
       {/* Main Government Portal Header */}
-      <header className="bg-white border-b border-[#DCE3EA] px-4 py-3.5 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <header className="bg-white border-b border-[#DCE3EA] px-4 py-3 sticky top-0 z-40 shadow-2xs">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-md bg-[#173B5E] text-white flex items-center justify-center font-bold shadow-xs">
               <Shield className="w-5 h-5 text-white" />
@@ -86,7 +101,7 @@ const Landing: React.FC = () => {
                 <span className="font-black text-base sm:text-lg text-[#173B5E] tracking-tight leading-none">
                   ARES
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#F4F6F8] text-[#285F86] border border-[#DCE3EA]">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#F4F6F8] text-[#285F86] border border-[#DCE3EA]">
                   National Portal
                 </span>
               </div>
@@ -96,193 +111,172 @@ const Landing: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div>
             <a
               href="tel:112"
-              className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#C62832] text-white font-bold text-xs shadow-xs hover:bg-[#a8222a] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-md bg-[#C62832] text-white font-bold text-xs shadow-xs hover:bg-[#a8222a] transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
-              <span>Emergency: 112</span>
+              <span>Call 112</span>
             </a>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        {/* Active Emergency Public Alerts */}
+      {/* Main Container - Fully Responsive for Mobile & Laptop Preview */}
+      <main className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        {/* High-Visibility Emergency Alert Popup Cards */}
         {alerts && alerts.length > 0 && (
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-[#243447] flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-[#D97706]" />
-                <span>Active Public Safety Notices</span>
-              </h3>
-              <span className="text-[11px] font-medium text-[#64748B]">
-                {alerts.length} Bulletin{alerts.length > 1 ? 's' : ''} in Effect
-              </span>
-            </div>
-            {alerts.slice(0, 3).map((alert) => (
-              <AlertBanner
+          <div className="space-y-3">
+            {alerts.slice(0, 2).map((alert) => (
+              <div
                 key={alert.id}
-                alert={alert}
-                onDismiss={() => dismissAlert(alert.id)}
-              />
+                role="alert"
+                className="relative bg-white rounded-xl border-2 border-[#C62832] shadow-lg p-4 sm:p-5 transition-all animate-slide-up"
+              >
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-600 shrink-0 animate-pulse">
+                    <AlertTriangle className="w-5 h-5 text-[#C62832]" />
+                  </div>
+
+                  <div className="flex-1 min-w-0 pr-6">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="bg-[#C62832] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        {alert.priority} Priority Alert
+                      </span>
+                      <h3 className="font-extrabold text-sm sm:text-base text-[#243447]">
+                        {alert.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+                      {alert.message}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-2.5 text-[11px] text-[#64748B]">
+                      {alert.location && (
+                        <span className="flex items-center gap-1 font-semibold text-[#285F86]">
+                          <MapPin className="w-3.5 h-3.5 text-[#285F86]" />
+                          <span>{alert.location}</span>
+                        </span>
+                      )}
+                      {alert.timestamp && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {alert.dismissible && (
+                    <button
+                      onClick={() => dismissAlert(alert.id)}
+                      className="absolute top-3.5 right-3.5 p-1.5 rounded-full hover:bg-slate-100 text-[#64748B] hover:text-[#243447] transition-colors cursor-pointer"
+                      aria-label="Dismiss Alert"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         )}
 
-        {/* Hero Incident Reporting Container */}
-        <section className="bg-white rounded-lg border border-[#DCE3EA] p-6 sm:p-8 shadow-xs">
-          <div className="max-w-3xl mx-auto text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#173B5E]/5 border border-[#173B5E]/15 text-[#173B5E] text-xs font-semibold">
-              <Activity className="w-3.5 h-3.5 text-[#285F86]" />
-              <span>National Computer-Aided Dispatch (CAD) Platform</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#173B5E] tracking-tight leading-snug">
-              Emergency Assistance When It Matters Most.
-            </h2>
-
-            <p className="text-sm sm:text-base text-[#64748B] max-w-2xl mx-auto leading-relaxed">
-              Access emergency reporting, location-based assistance, and public safety information through one platform. Direct routing to nearest trauma centers, police control, and fire rescue units.
-            </p>
-
-            {/* Prominent Emergency Reporting Action */}
-            <div className="pt-4 pb-2 flex flex-col items-center">
-              <Button
-                variant="emergency"
-                size="xl"
-                onClick={handleReportIncident}
-                className="w-full max-w-md h-14 text-base font-bold gap-3 rounded-lg shadow-sm"
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span>Report Emergency Incident</span>
-                <ChevronRight className="w-5 h-5 ml-auto" />
-              </Button>
-
-              <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-xs text-[#64748B]">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#16845B]" />
-                  Verified GPS Coordinates
-                </span>
-                <span className="text-[#DCE3EA]">•</span>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#16845B]" />
-                  Zero Manual Intake Delay
-                </span>
-                <span className="text-[#DCE3EA]">•</span>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#16845B]" />
-                  Live Street Tracking
-                </span>
-              </div>
-            </div>
+        {/* Emergency Assistance Introduction */}
+        <section className="bg-white rounded-xl border border-[#DCE3EA] p-5 sm:p-6 shadow-xs text-center space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#173B5E]/5 border border-[#173B5E]/15 text-[#173B5E] text-xs font-semibold">
+            <Radio className="w-3.5 h-3.5 text-[#285F86]" />
+            <span>National Public Safety Dispatch Network</span>
           </div>
+
+          <h2 className="text-2xl sm:text-3xl font-black text-[#173B5E] tracking-tight leading-snug">
+            Emergency Assistance When It Matters Most.
+          </h2>
+
+          <p className="text-xs sm:text-sm text-[#64748B] max-w-xl mx-auto leading-relaxed">
+            Access emergency reporting, location-based assistance, and public safety information through one platform. Direct automated routing to nearest trauma hospitals, fire stations, and police patrols.
+          </p>
         </section>
 
-        {/* Quick-Access Public Safety Services */}
-        <section className="space-y-3">
+        {/* National Emergency Direct Helpline Call Buttons */}
+        <section className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-[#243447]">
-              Coordinated Public Safety Services
+            <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#243447] flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-[#C62832]" />
+              <span>National Direct Helplines (Toll-Free 24x7)</span>
             </h3>
-            <span className="text-[11px] font-medium text-[#64748B]">Inter-Agency Operations</span>
+            <span className="text-[11px] font-mono text-[#64748B]">Immediate Direct Dial</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              {
-                title: 'Medical & Trauma Care',
-                dept: 'Ambulance / ALS',
-                desc: 'Rapid deployment of Advanced Life Support ambulances with hospital telemetry link.',
-                icon: HeartPulse,
-                color: 'text-[#C62832] bg-red-50 border-red-200',
-              },
-              {
-                title: 'Fire & Hazmat Rescue',
-                dept: 'Fire Services',
-                desc: 'Emergency fire suppression, structural collapses, and toxic industrial hazard response.',
-                icon: Flame,
-                color: 'text-[#D97706] bg-amber-50 border-amber-200',
-              },
-              {
-                title: 'Police & Public Safety',
-                dept: 'Law Enforcement',
-                desc: 'Rapid law & order intervention, crime containment, and civilian safety protection.',
-                icon: Shield,
-                color: 'text-[#285F86] bg-blue-50 border-blue-200',
-              },
-              {
-                title: 'Disaster Relief Force',
-                dept: 'Disaster Response',
-                desc: 'Floods, severe weather, natural disaster evacuation and civil defense coordination.',
-                icon: LifeBuoy,
-                color: 'text-[#16845B] bg-emerald-50 border-emerald-200',
-              },
-            ].map((service) => {
-              const ServiceIcon = service.icon;
-              return (
-                <div
-                  key={service.title}
-                  className="p-4 rounded-lg bg-white border border-[#DCE3EA] shadow-2xs space-y-2.5 transition-all hover:border-[#285F86]/40"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className={`w-9 h-9 rounded-md flex items-center justify-center border ${service.color}`}>
-                      <ServiceIcon className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] bg-[#F4F6F8] px-2 py-0.5 rounded border border-[#DCE3EA]">
-                      {service.dept}
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-[#243447]">{service.title}</h4>
-                    <p className="text-xs text-[#64748B] mt-1 leading-relaxed">{service.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* National Emergency Helplines Official Directory */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-[#243447]">
-              National Direct Helplines (Toll-Free 24x7)
-            </h3>
-            <span className="text-[11px] font-medium text-[#64748B]">Immediate Voice Assistance</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             {emergencyHelplines.map((hl) => (
               <a
                 key={hl.number}
                 href={`tel:${hl.number}`}
-                className={`p-4 rounded-lg border bg-white shadow-2xs transition-all hover:shadow-xs block group ${hl.highlight}`}
+                className={`p-3 sm:p-4 rounded-xl border bg-white shadow-2xs hover:shadow-sm transition-all block group active:scale-98 ${hl.color}`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-mono text-2xl font-black tracking-tight text-[#173B5E] group-hover:text-[#C62832] transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[#173B5E] group-hover:text-[#C62832] transition-colors">
                     {hl.number}
                   </span>
-                  <Phone className="w-4 h-4 text-[#64748B] group-hover:text-[#243447] transition-colors" />
+                  <Phone className="w-3.5 h-3.5 text-[#64748B] group-hover:text-[#243447] transition-colors" />
                 </div>
-                <h4 className="font-bold text-xs text-[#243447]">{hl.title}</h4>
-                <p className="text-[11px] text-[#64748B] mt-1 leading-snug">{hl.desc}</p>
+                <h4 className="font-bold text-xs text-[#243447] leading-snug truncate">{hl.title}</h4>
+                <p className="text-[10px] sm:text-[11px] text-[#64748B] mt-0.5 leading-tight truncate">{hl.desc}</p>
               </a>
             ))}
           </div>
         </section>
 
-        {/* Official Governance & Compliance Footer */}
-        <footer className="pt-6 border-t border-[#DCE3EA] text-xs text-[#64748B] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        {/* Extra-Large Report Emergency Incident Button (Located Down) */}
+        <section className="pt-2 pb-4">
+          <div className="bg-white rounded-2xl border-2 border-[#C62832]/30 p-5 sm:p-6 shadow-md text-center space-y-3">
+            <div>
+              <span className="text-xs font-bold text-[#C62832] uppercase tracking-wider">
+                Priority 1 Citizen CAD Protocol
+              </span>
+              <p className="text-xs text-[#64748B] mt-0.5">
+                Automatically detects nearest hospital, allocates field units, and provides live road tracking.
+              </p>
+            </div>
+
+            {/* Extra-Large, Prominent CTA Button */}
+            <Button
+              variant="emergency"
+              size="xxl"
+              onClick={handleReportIncident}
+              className="w-full h-16 sm:h-20 rounded-xl text-lg sm:text-xl font-black bg-[#C62832] hover:bg-[#a8222a] text-white shadow-xl shadow-red-500/25 gap-3 border-2 border-white/30 cursor-pointer active:scale-[0.99] transition-all"
+            >
+              <AlertTriangle className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+              <div className="text-left flex-1">
+                <div className="leading-tight">Report Emergency Incident</div>
+                <div className="text-xs font-medium opacity-90 hidden sm:block">Tap to initiate automated multi-agency dispatch</div>
+              </div>
+              <ChevronRight className="w-6 h-6 stroke-[3]" />
+            </Button>
+
+            <div className="flex items-center justify-center gap-3 text-[11px] text-[#64748B] pt-1">
+              <span>✓ Verified GPS Satellite Lock</span>
+              <span>•</span>
+              <span>✓ AI-Optimized Agency Allocation</span>
+              <span>•</span>
+              <span>✓ Real Road Live Tracking</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="pt-4 border-t border-[#DCE3EA] text-xs text-[#64748B] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="flex items-center gap-1.5 justify-center">
             <Shield className="w-4 h-4 text-[#285F86]" />
-            <span>ARES Public Safety Portal • Designed for Official Emergency Dispatch Operations</span>
+            <span>ARES — Emergency Response Support System (ERSS)</span>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px] text-[#64748B]">
-            <span>Version 3.2-PublicSector</span>
+          <div className="flex items-center gap-3 text-[11px] text-[#64748B]">
+            <span>Version 3.2.0</span>
             <span>•</span>
             <button
               onClick={() => navigate('/tracking')}
@@ -292,6 +286,7 @@ const Landing: React.FC = () => {
             </button>
           </div>
         </footer>
+
       </main>
     </div>
   );

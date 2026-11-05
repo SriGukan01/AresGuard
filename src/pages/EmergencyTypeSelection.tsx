@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEmergency } from '@/context/EmergencyContext';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
@@ -48,43 +48,27 @@ const EmergencyTypeSelection: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F6F8] text-[#243447] flex flex-col font-sans">
-      {/* Top Institutional Header */}
-      <header className="bg-white border-b border-[#DCE3EA] px-4 py-3 sticky top-0 z-40 shadow-2xs">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/location')}
-            className="text-[#64748B] hover:text-[#243447] gap-1 px-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline font-semibold">Location</span>
+      {/* Header */}
+      <header className="p-3 sm:p-4 bg-white border-b border-[#DCE3EA] sticky top-0 z-40 shadow-2xs">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/location')} className="h-9 w-9 text-[#64748B]">
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-
           <div className="flex-1 max-w-md">
             <ProgressIndicator steps={steps} currentStep={2} />
           </div>
-
-          <div className="w-16 text-right text-[11px] font-mono text-[#64748B] hidden sm:block">
-            Step 2 of 4
-          </div>
+          <div className="w-9" />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        <div className="bg-white rounded-lg border border-[#DCE3EA] p-6 sm:p-8 shadow-xs space-y-6">
+      <main className="flex-1 flex flex-col p-4 sm:p-6 overflow-y-auto">
+        <div className="max-w-2xl w-full mx-auto space-y-6 animate-fade-in">
           {/* Header Title */}
-          <div className="border-b border-[#DCE3EA] pb-4">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#285F86] uppercase tracking-wider mb-1">
-              <AlertTriangle className="w-4 h-4 text-[#D97706]" />
-              <span>Incident Classification Protocol</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#173B5E] tracking-tight">
-              What type of emergency is occurring?
-            </h1>
-            <p className="text-xs sm:text-sm text-[#64748B] mt-1">
-              Select one or more categories below. Multi-agency triage will allocate the corresponding emergency personnel.
+          <div className="text-center space-y-1.5">
+            <h1 className="text-xl sm:text-2xl font-black text-[#173B5E] tracking-tight">What's the emergency?</h1>
+            <p className="text-xs sm:text-sm text-[#64748B]">
+              Select one or more that apply
             </p>
           </div>
 
@@ -100,33 +84,29 @@ const EmergencyTypeSelection: React.FC = () => {
             ))}
           </div>
 
-          {/* Selection Status & Action */}
-          <div className="pt-4 border-t border-[#DCE3EA] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs font-medium text-[#64748B]">
-              {selectedEmergencyTypes.length === 0 ? (
-                <span className="text-[#C62832] font-semibold">
-                  • Please select at least one incident category to proceed.
-                </span>
-              ) : (
-                <span className="text-[#173B5E] font-semibold">
-                  ✓ {selectedEmergencyTypes.length} category{selectedEmergencyTypes.length !== 1 ? 's' : ''} classified for dispatch.
-                </span>
-              )}
+          {/* Selected Count */}
+          {selectedEmergencyTypes.length > 0 && (
+            <div className="text-center text-xs font-semibold text-[#173B5E] bg-[#173B5E]/5 py-2 px-3 rounded-full max-w-xs mx-auto border border-[#173B5E]/15 animate-fade-in">
+              ✓ {selectedEmergencyTypes.length} type{selectedEmergencyTypes.length !== 1 ? 's' : ''} selected
             </div>
-
-            <Button
-              variant="default"
-              size="lg"
-              className="w-full sm:w-auto bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-11 px-8 rounded-md shadow-xs gap-2"
-              onClick={handleContinue}
-              disabled={selectedEmergencyTypes.length === 0}
-            >
-              <span>Continue to Agency Selection</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
         </div>
       </main>
+
+      {/* Sticky Footer */}
+      <footer className="p-4 border-t border-[#DCE3EA] bg-white sticky bottom-0 z-30 shadow-md">
+        <div className="max-w-2xl mx-auto">
+          <Button
+            size="lg"
+            className="w-full bg-[#173B5E] hover:bg-[#122e49] text-white font-bold h-12 rounded-lg text-sm sm:text-base gap-2 shadow-xs"
+            onClick={handleContinue}
+            disabled={selectedEmergencyTypes.length === 0}
+          >
+            <span>Continue</span>
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+      </footer>
     </div>
   );
 };

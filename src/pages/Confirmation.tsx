@@ -158,7 +158,7 @@ const Confirmation: React.FC = () => {
                     key={dept.id}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#173B5E]/5 border border-[#173B5E]/20 text-[#173B5E] rounded text-xs font-semibold"
                   >
-                    <Shield className="w-3.5 h-3.5 text-[#285F86]" />
+                    <span className="text-sm">{dept.icon}</span>
                     <span>{dept.name}</span>
                   </span>
                 ))}
