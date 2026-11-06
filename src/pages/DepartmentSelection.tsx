@@ -40,6 +40,21 @@ const DepartmentSelection: React.FC = () => {
     return getAIRecommendation(selectedEmergencyTypes, departments);
   }, [selectedEmergencyTypes]);
 
+  // Get primary recommended department IDs based on selected emergency types
+  const primaryRecommendedDeptIds = useMemo(() => {
+    const primaries: DepartmentId[] = [];
+    selectedEmergencyTypes.forEach(typeId => {
+      const type = emergencyTypes.find(t => t.id === typeId);
+      if (type && type.departmentIds.length > 0) {
+        const primary = type.departmentIds[0];
+        if (!primaries.includes(primary)) {
+          primaries.push(primary);
+        }
+      }
+    });
+    return primaries;
+  }, [selectedEmergencyTypes]);
+
   // Get suggested departments based on emergency types
   const suggestedDepartmentIds = useMemo(() => {
     const ids = new Set<DepartmentId>();
@@ -50,14 +65,14 @@ const DepartmentSelection: React.FC = () => {
     return Array.from(ids);
   }, [selectedEmergencyTypes]);
 
-  // Auto-select suggested departments if none selected yet
+  // Auto-select suggested departments whenever emergency types are updated
   useEffect(() => {
-    if (selectedDepartments.length === 0 && suggestedDepartmentIds.length > 0) {
+    if (suggestedDepartmentIds.length > 0) {
       setSelectedDepartments(suggestedDepartmentIds);
     }
-  }, [suggestedDepartmentIds, selectedDepartments.length, setSelectedDepartments]);
+  }, [selectedEmergencyTypes]);
 
-  // Sort departments: suggested first, then by availability
+  // Sort departments: primary AI recommended department for selected incident first, then suggested, then others
   const sortedDepartments = useMemo(() => {
     return [...departments].sort((a, b) => {
       const aIsSuggested = suggestedDepartmentIds.includes(a.id);
@@ -65,12 +80,26 @@ const DepartmentSelection: React.FC = () => {
       
       if (aIsSuggested && !bIsSuggested) return -1;
       if (!aIsSuggested && bIsSuggested) return 1;
+
+      if (aIsSuggested && bIsSuggested) {
+        const aIsPrimary = primaryRecommendedDeptIds.includes(a.id);
+        const bIsPrimary = primaryRecommendedDeptIds.includes(b.id);
+
+        if (aIsPrimary && !bIsPrimary) return -1;
+        if (!aIsPrimary && bIsPrimary) return 1;
+
+        if (aIsPrimary && bIsPrimary) {
+          return primaryRecommendedDeptIds.indexOf(a.id) - primaryRecommendedDeptIds.indexOf(b.id);
+        }
+
+        return suggestedDepartmentIds.indexOf(a.id) - suggestedDepartmentIds.indexOf(b.id);
+      }
       
       // Then by availability
       const statusOrder = { available: 0, busy: 1, occupied: 2 };
       return statusOrder[a.status] - statusOrder[b.status];
     });
-  }, [suggestedDepartmentIds]);
+  }, [suggestedDepartmentIds, primaryRecommendedDeptIds]);
 
   const toggleDepartment = (deptId: DepartmentId) => {
     setSelectedDepartments(prev =>
@@ -140,13 +169,16 @@ const DepartmentSelection: React.FC = () => {
                   .filter(dept => suggestedDepartmentIds.includes(dept.id))
                   .map((dept, index) => {
                     const rec = getRecommendationForDept(dept.id);
+                    const isRecommended = primaryRecommendedDeptIds.length > 0
+                      ? dept.id === primaryRecommendedDeptIds[0]
+                      : index === 0;
                     return (
                       <DepartmentCard
                         key={dept.id}
                         department={dept}
                         isSelected={selectedDepartments.includes(dept.id)}
                         onSelect={() => toggleDepartment(dept.id)}
-                        showRecommendation={index === 0 && dept.status === 'available'}
+                        showRecommendation={isRecommended}
                         recommendationReason={rec?.reason}
                       />
                     );

@@ -36,7 +36,7 @@ const Landing: React.FC = () => {
       number: '112', 
       title: 'National Emergency', 
       desc: 'All-in-One Helpline', 
-      color: 'border-red-300 bg-red-50/70 text-[#C62832]' 
+      color: 'border-sky-300 bg-sky-50/70 text-[#0284C7]' 
     },
     { 
       number: '108', 
@@ -114,7 +114,7 @@ const Landing: React.FC = () => {
           <div>
             <a
               href="tel:112"
-              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-md bg-[#C62832] text-white font-bold text-xs shadow-xs hover:bg-[#a8222a] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-md bg-[#0EA5E9] text-white font-bold text-xs shadow-xs hover:bg-[#0284C7] transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call 112</span>
@@ -133,16 +133,16 @@ const Landing: React.FC = () => {
               <div
                 key={alert.id}
                 role="alert"
-                className="relative bg-white rounded-xl border-2 border-[#C62832] shadow-lg p-4 sm:p-5 transition-all animate-slide-up"
+                className="relative bg-white rounded-xl border-2 border-[#0EA5E9] shadow-lg p-4 sm:p-5 transition-all animate-slide-up"
               >
                 <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-600 shrink-0 animate-pulse">
-                    <AlertTriangle className="w-5 h-5 text-[#C62832]" />
+                  <div className="w-10 h-10 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center text-sky-600 shrink-0 animate-pulse">
+                    <AlertTriangle className="w-5 h-5 text-[#0EA5E9]" />
                   </div>
 
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="bg-[#C62832] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                      <span className="bg-[#0EA5E9] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
                         {alert.priority} Priority Alert
                       </span>
                       <h3 className="font-extrabold text-sm sm:text-base text-[#243447]">
@@ -205,7 +205,7 @@ const Landing: React.FC = () => {
         <section className="space-y-2.5">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#243447] flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#C62832]" />
+              <Phone className="w-3.5 h-3.5 text-[#0EA5E9]" />
               <span>National Direct Helplines (Toll-Free 24x7)</span>
             </h3>
             <span className="text-[11px] font-mono text-[#64748B]">Immediate Direct Dial</span>
@@ -219,7 +219,7 @@ const Landing: React.FC = () => {
                 className={`p-3 sm:p-4 rounded-xl border bg-white shadow-2xs hover:shadow-sm transition-all block group active:scale-98 ${hl.color}`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[#173B5E] group-hover:text-[#C62832] transition-colors">
+                  <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[#173B5E] group-hover:text-[#0EA5E9] transition-colors">
                     {hl.number}
                   </span>
                   <Phone className="w-3.5 h-3.5 text-[#64748B] group-hover:text-[#243447] transition-colors" />
@@ -233,9 +233,9 @@ const Landing: React.FC = () => {
 
         {/* Extra-Large Report Emergency Incident Button (Located Down) */}
         <section className="pt-2 pb-4">
-          <div className="bg-white rounded-2xl border-2 border-[#C62832]/30 p-5 sm:p-6 shadow-md text-center space-y-3">
+          <div className="bg-white rounded-2xl border-2 border-[#0EA5E9]/30 p-5 sm:p-6 shadow-md text-center space-y-3">
             <div>
-              <span className="text-xs font-bold text-[#C62832] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#0284C7] uppercase tracking-wider">
                 Priority 1 Citizen CAD Protocol
               </span>
               <p className="text-xs text-[#64748B] mt-0.5">
@@ -248,7 +248,7 @@ const Landing: React.FC = () => {
               variant="emergency"
               size="xxl"
               onClick={handleReportIncident}
-              className="w-full h-16 sm:h-20 rounded-xl text-lg sm:text-xl font-black bg-[#C62832] hover:bg-[#a8222a] text-white shadow-xl shadow-red-500/25 gap-3 border-2 border-white/30 cursor-pointer active:scale-[0.99] transition-all"
+              className="w-full h-16 sm:h-20 rounded-xl text-lg sm:text-xl font-black bg-[#0EA5E9] hover:bg-[#0284C7] text-white shadow-xl shadow-sky-500/25 gap-3 border-2 border-white/30 cursor-pointer active:scale-[0.99] transition-all"
             >
               <AlertTriangle className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
               <div className="text-left flex-1">

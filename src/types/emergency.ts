@@ -84,4 +84,5 @@ export interface AIRecommendation {
   confidence: number;
   alternativeDepartmentId?: DepartmentId;
   estimatedResponseTime: number;
+  isPrimary?: boolean;
 }

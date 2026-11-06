@@ -1,4 +1,4 @@
-import { Department, EmergencyTypeOption, Alert } from '@/types/emergency';
+import { Department, EmergencyTypeOption, Alert, DepartmentId, AIRecommendation } from '@/types/emergency';
 
 export const departments: Department[] = [
   {
@@ -17,12 +17,11 @@ export const departments: Department[] = [
     name: 'Fire Department',
     icon: '🚒',
     description: 'Fire emergencies, rescue operations, hazmat',
-    status: 'busy',
-    estimatedWaitTime: 5,
-    distance: 3.1,
-    eta: 12,
+    status: 'available',
+    distance: 2.8,
+    eta: 7,
     units: 8,
-    availableUnits: 2,
+    availableUnits: 4,
   },
   {
     id: 'police',
@@ -51,13 +50,11 @@ export const departments: Department[] = [
     name: 'Women & Child Safety',
     icon: '👨‍👩‍👧',
     description: 'Domestic violence, child safety, harassment',
-    status: 'occupied',
-    estimatedWaitTime: 15,
-    nextAvailable: '10 min',
-    distance: 4.0,
-    eta: 20,
-    units: 4,
-    availableUnits: 0,
+    status: 'available',
+    distance: 3.2,
+    eta: 8,
+    units: 6,
+    availableUnits: 3,
   },
   {
     id: 'traffic',
@@ -81,7 +78,7 @@ export const emergencyTypes: EmergencyTypeOption[] = [
   { id: 'medical', label: 'Medical Emergency', departmentIds: ['ambulance'] },
   { id: 'robbery', label: 'Robbery / Theft', departmentIds: ['police'] },
   { id: 'natural-disaster', label: 'Natural Disaster', departmentIds: ['disaster', 'fire', 'ambulance'] },
-  { id: 'domestic-violence', label: 'Domestic Violence', departmentIds: ['police', 'women-child'] },
+  { id: 'domestic-violence', label: 'Domestic Violence', departmentIds: ['women-child', 'police'] },
   { id: 'traffic-jam', label: 'Traffic Emergency', departmentIds: ['traffic', 'police'] },
   { id: 'other', label: 'Other', departmentIds: ['police'] },
 ];
@@ -118,26 +115,88 @@ export const sampleAlerts: Alert[] = [
   },
 ];
 
+// Incident-specific AI reasoning map
+const incidentDepartmentReasons: Record<string, Partial<Record<DepartmentId, string>>> = {
+  fire: {
+    fire: 'AI Recommended: Primary response unit for fire suppression & structural rescue',
+    ambulance: 'Medical standby for burn care & smoke inhalation treatment',
+    police: 'Perimeter evacuation security & crowd management',
+  },
+  assault: {
+    police: 'AI Recommended: Immediate tactical response & active threat neutralization',
+    ambulance: 'Emergency paramedic support for physical injury trauma triage',
+  },
+  robbery: {
+    police: 'AI Recommended: Immediate armed patrol dispatch & perimeter containment',
+    ambulance: 'Standby paramedic support for victim trauma care',
+  },
+  medical: {
+    ambulance: 'AI Recommended: Fastest advanced life-support paramedic dispatch',
+  },
+  accident: {
+    ambulance: 'AI Recommended: Immediate trauma triage & emergency casualty transport',
+    police: 'Accident scene security, perimeter control & investigation',
+    traffic: 'Roadway hazard clearance & traffic redirection',
+  },
+  'traffic-jam': {
+    traffic: 'AI Recommended: Specialized road clearance & gridlock hazard mitigation',
+    police: 'Patrol assistance for traffic regulation & route diversion',
+  },
+  flood: {
+    disaster: 'AI Recommended: Specialized flood rescue, aquatic extraction & evacuation team',
+    fire: 'Emergency water pumping equipment & extraction support',
+  },
+  'natural-disaster': {
+    disaster: 'AI Recommended: Coordinated disaster management & rapid search and rescue',
+    fire: 'Heavy rescue operations & structural collapse stabilization',
+    ambulance: 'Field medical station & emergency casualty transport',
+  },
+  'domestic-violence': {
+    'women-child': 'AI Recommended: Dedicated crisis intervention & protective victim support',
+    police: 'Immediate law enforcement protection & personal safety patrol',
+  },
+  other: {
+    police: 'AI Recommended: On-site emergency assessment & situation management',
+  },
+};
+
 export const getAIRecommendation = (
   selectedTypes: string[],
   departments: Department[]
-) => {
-  const availableDepts = departments.filter(d => d.status === 'available');
-  const busyDepts = departments.filter(d => d.status === 'busy');
-  
-  // Sort by ETA and availability
-  const sorted = [...departments].sort((a, b) => {
-    if (a.status === 'available' && b.status !== 'available') return -1;
-    if (b.status === 'available' && a.status !== 'available') return 1;
-    return (a.eta || 999) - (b.eta || 999);
+): AIRecommendation[] => {
+  // Determine primary department for each selected emergency type
+  const primaryDeptIds = new Set<DepartmentId>();
+  selectedTypes.forEach(typeId => {
+    const type = emergencyTypes.find(t => t.id === typeId);
+    if (type && type.departmentIds.length > 0) {
+      primaryDeptIds.add(type.departmentIds[0]);
+    }
   });
 
-  return sorted.map(dept => ({
-    departmentId: dept.id,
-    reason: dept.status === 'available' 
+  return departments.map(dept => {
+    const isPrimary = primaryDeptIds.has(dept.id);
+    
+    // Check for an incident-tailored reason
+    let tailoredReason: string | undefined;
+    for (const typeId of selectedTypes) {
+      const reasonsForType = incidentDepartmentReasons[typeId];
+      if (reasonsForType && reasonsForType[dept.id]) {
+        tailoredReason = reasonsForType[dept.id];
+        // If this is the primary recommendation for this type, prioritize this reason
+        if (isPrimary) break;
+      }
+    }
+
+    const fallbackReason = dept.status === 'available'
       ? `Fastest response - ${dept.eta} min ETA`
-      : `Currently ${dept.status}, ~${dept.estimatedWaitTime || 5} min wait`,
-    confidence: dept.status === 'available' ? 0.95 : 0.7,
-    estimatedResponseTime: dept.eta || 15,
-  }));
+      : `Currently ${dept.status}, ~${dept.estimatedWaitTime || 5} min wait`;
+
+    return {
+      departmentId: dept.id,
+      reason: tailoredReason || fallbackReason,
+      confidence: isPrimary ? 0.98 : (tailoredReason ? 0.85 : 0.65),
+      isPrimary,
+      estimatedResponseTime: dept.eta || 15,
+    };
+  });
 };
